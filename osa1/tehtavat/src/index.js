@@ -36,30 +36,31 @@ const Yhteensa = (props) => {
 
 const App = () => {
     const kurssi = 'Half Stack -sovelluskehitys'
-
-    const osa1 = {
+    const osat = [
+    {
         nimi: 'Reactin perusteet',
         tehtavia: 10
-    }
+    },
 
-    const osa2 = {
+    {
         nimi: 'Tiedonvälitys propseilla',
         tehtavia: 7
-    }
+    },
 
-    const osa3 = {
+    {
         nimi: 'Komponenttien tila',
         tehtavia: 14
     }
-
+    ]
+    
     return (
 
         <div>
             <Otsikko kurssi={kurssi} />
-            <Sisalto osa1={osa1.nimi} t1={osa1.tehtavia} 
-            osa2={osa2.nimi} t2 = {osa2.tehtavia}
-            osa3={osa3.nimi} t3 = {osa3.tehtavia} />
-            <Yhteensa yht={osa1.tehtavia+osa2.tehtavia+osa3.tehtavia} />
+            <Sisalto osa1={osat[0].nimi} osa2={osat[1].nimi} osa3 = {osat[2].nimi}
+                            t1={osat[0].tehtavia} t2 = {osat[1].tehtavia}
+                            t3 ={osat[2].tehtavia} />
+            <Yhteensa yht={osat[0].tehtavia+osat[1].tehtavia+osat[2].tehtavia} />
         </div>
 
     )
