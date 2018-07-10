@@ -15,21 +15,24 @@ const Osa = (props) =>{
     )
 }
 
-const Sisalto = (props) => {
-    
+const Sisalto = (props) => { 
     return(
         <div>
-            <Osa osa={props.osa1} tehtavia={props.t1}/>
-            <Osa osa={props.osa2} tehtavia={props.t2}/>
-            <Osa osa={props.osa3} tehtavia={props.t3}/>
+            <Osa osa={props.osat[0].nimi} tehtavia={props.osat[0].tehtavia} />
+            <Osa osa={props.osat[1].nimi} tehtavia={props.osat[1].tehtavia} />
+            <Osa osa={props.osat[2].nimi} tehtavia={props.osat[2].tehtavia} />
         </div>
     )
 }
 
 const Yhteensa = (props) => {
+    let summa = 0
+    props.osat.forEach(element => {
+        summa += element.tehtavia    
+    });
     return(
     <div>
-        <p> yhteensä {props.yht} tehtävää </p>
+        <p> yhteensä {summa} tehtävää </p>
     </div>
     )
 }
@@ -57,10 +60,8 @@ const App = () => {
 
         <div>
             <Otsikko kurssi={kurssi} />
-            <Sisalto osa1={osat[0].nimi} osa2={osat[1].nimi} osa3 = {osat[2].nimi}
-                            t1={osat[0].tehtavia} t2 = {osat[1].tehtavia}
-                            t3 ={osat[2].tehtavia} />
-            <Yhteensa yht={osat[0].tehtavia+osat[1].tehtavia+osat[2].tehtavia} />
+            <Sisalto osat={osat} />
+            <Yhteensa osat={osat} />
         </div>
 
     )
