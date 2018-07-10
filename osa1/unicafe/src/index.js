@@ -11,7 +11,6 @@ class App extends React.Component {
         }
     }
     increaseGood = () => { 
-        console.log(this.state.good)
         this.setState({good: this.state.good + 1})
     }
 
@@ -23,6 +22,18 @@ class App extends React.Component {
         this.setState({bad: this.state.bad+1})
     }
     render() {
+        const avg = () => {
+            return ( (this.state.good+this.state.bad*(-1))
+            /(this.state.good+this.state.neutral+this.state.bad) )
+        }
+
+        const percentagePositive = () => {
+            return (this.state.good/(this.state.good+this.state.neutral+this.state.bad)*100)
+        }
+
+        const precise = (number) => {
+            return (Number.parseFloat(number).toFixed(1))
+        }
         return (
             <div>
                 <h1>Anna palautetta</h1>
@@ -38,6 +49,8 @@ class App extends React.Component {
                     hyvä {this.state.good} <br />
                     neutraali {this.state.neutral} <br/>
                     huono {this.state.bad} <br />
+                    keskiarvo {precise(avg())} <br />
+                    positiivisia {precise(percentagePositive())} %
                 </div>
             </div> 
         )
