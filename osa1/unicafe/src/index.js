@@ -95,6 +95,20 @@ class App extends React.Component {
             }
     
         ]
+
+        const allStatsText = () => {
+            if((this.state.bad+this.state.good+this.state.neutral)=== 0) {
+                return (
+                    <div>
+                        Yhtään palautetta ei ole annettu
+                    </div>
+                )
+            }
+
+            return (
+                <Statistics stats = {stats} />
+            )
+        }
     
         return (
             <div>
@@ -108,7 +122,7 @@ class App extends React.Component {
                 <h1>Statistiikka</h1>
 
                 <div>
-                    <Statistics stats = {stats} /> 
+                    {allStatsText()} 
                 </div>
             </div> 
         )
