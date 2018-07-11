@@ -7,7 +7,8 @@ class App extends React.Component {
         super(props)
         this.state = {
             selected: 0,
-            points: new Array(this.props.anecdotes.length).fill(0)
+            points: new Array(this.props.anecdotes.length).fill(0),
+            bestAnecdote: 0
         }
     }
 
@@ -20,10 +21,15 @@ class App extends React.Component {
     vote = () => {
         const copyOfArray = [...this.state.points]
         copyOfArray[this.state.selected] += 1
+
         return () => {
             this.setState({points: copyOfArray})
+            /* update the best anecodte*/
+            this.setState({bestAnecdote: copyOfArray.indexOf(Math.max(...copyOfArray))})
         }
     }
+
+
 
     render() {
         console.log(this.state.points)
@@ -34,6 +40,11 @@ class App extends React.Component {
                 <button onClick={this.drawRandomAnecdote()}> Next anecdote </button>
                 
                 <button onClick={this.vote()}>Vote this anecdote</button>
+            
+
+                <h1>Anecdote with most votes</h1>
+                <i>{this.props.anecdotes[this.state.bestAnecdote]}</i> <br />
+                Leading the vote with {this.state.points[this.state.bestAnecdote]} votes
             </div>
         )
     }
