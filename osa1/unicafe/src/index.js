@@ -9,31 +9,28 @@ const Button = (props) => {
 }
 
 const Statistic = (props) => {
-    if(props.isPercentage===1) {
-        return(
-            <div>
-                {props.text}: {props.value}%
-            </div>
+    if (props.isPercentage === 1) {
+        return (
+            <tr><td>{props.text}:</td><td>{props.value}%</td></tr>
         )
     }
-    return(
-        
-        <div>
-            {props.text}: {props.value} 
-        </div>
+    return (
+        <tr><td>{props.text}:</td><td>{props.value}</td></tr>
     )
 }
 
 const Statistics = (props) => {
-    const {stats} = props
+    const { stats } = props
     return (
-        <div>
-            <Statistic text={stats[0].text} value={stats[0].value} isPercentage={stats[0].isPercentage} />
-            <Statistic text={stats[1].text} value={stats[1].value} isPercentage={stats[1].isPercentage} />
-            <Statistic text={stats[2].text} value={stats[2].value} isPercentage={stats[2].isPercentage} />
-            <Statistic text={stats[3].text} value={stats[3].value} isPercentage={stats[3].isPercentage} />
-            <Statistic text={stats[4].text} value={stats[4].value} isPercentage={stats[4].isPercentage} />
-        </div>
+        <table>
+            <tbody>
+                <Statistic text={stats[0].text} value={stats[0].value} isPercentage={stats[0].isPercentage} />
+                <Statistic text={stats[1].text} value={stats[1].value} isPercentage={stats[1].isPercentage} />
+                <Statistic text={stats[2].text} value={stats[2].value} isPercentage={stats[2].isPercentage} />
+                <Statistic text={stats[3].text} value={stats[3].value} isPercentage={stats[3].isPercentage} /> 
+                <Statistic text={stats[4].text} value={stats[4].value} isPercentage={stats[4].isPercentage} />
+            </tbody>
+        </table>
     )
 }
 
