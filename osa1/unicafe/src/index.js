@@ -9,8 +9,15 @@ const Button = (props) => {
 }
 
 const Statistic = (props) => {
-
+    if(props.isPercentage===1) {
+        return(
+            <div>
+                {props.text}: {props.value}%
+            </div>
+        )
+    }
     return(
+        
         <div>
             {props.text}: {props.value} 
         </div>
@@ -21,11 +28,11 @@ const Statistics = (props) => {
     const {stats} = props
     return (
         <div>
-            <Statistic text={stats[0].text} value={stats[0].value} />
-            <Statistic text={stats[1].text} value={stats[1].value} />
-            <Statistic text={stats[2].text} value={stats[2].value} />
-            <Statistic text={stats[3].text} value={stats[3].value} />
-            <Statistic text={stats[4].text} value={stats[4].value} />
+            <Statistic text={stats[0].text} value={stats[0].value} isPercentage={stats[0].isPercentage} />
+            <Statistic text={stats[1].text} value={stats[1].value} isPercentage={stats[1].isPercentage} />
+            <Statistic text={stats[2].text} value={stats[2].value} isPercentage={stats[2].isPercentage} />
+            <Statistic text={stats[3].text} value={stats[3].value} isPercentage={stats[3].isPercentage} />
+            <Statistic text={stats[4].text} value={stats[4].value} isPercentage={stats[4].isPercentage} />
         </div>
     )
 }
@@ -34,22 +41,18 @@ const Statistics = (props) => {
 class App extends React.Component {
     constructor(props) {
         super(props)
+        
         this.state={
             good: 0,
             neutral: 0,
             bad: 0
         }
     }
-    increaseGood = () => { 
-        this.setState({good: this.state.good + 1})
-    }
 
-    increaseNeutral = () => {
-        this.setState({neutral: this.state.neutral+1})
-    }
-
-    increaseBad = () => {
-        this.setState({bad: this.state.bad+1})
+    buttonEventHandler = (fieldName) => {
+        return () => {
+            this.setState({[fieldName]: this.state[fieldName] +1})
+        }
     }
 
     avg = () => {
@@ -71,27 +74,32 @@ class App extends React.Component {
       const stats = [
             {
                 text: 'Hyvä',
-                value: this.state.good
+                value: this.state.good,
+                isPercentage: 0
             },
     
             {
                 text: 'Neutraali',
-                value: this.state.neutral
+                value: this.state.neutral,
+                isPercentage: 0
             },
     
             {
                 text: 'Huono',
-                value: this.state.bad
+                value: this.state.bad,
+                isPercentage: 0
             },
     
             {
                 text: 'Keskiarvo',
-                value: this.precise(this.avg())
+                value: this.precise(this.avg()),
+                isPercentage: 0
             },
     
             {
                 text: 'Positiivisia',
-                value: this.precise(this.percentagePositive())
+                value: this.precise(this.percentagePositive()),
+                isPercentage: 1
             }
     
         ]
@@ -114,9 +122,9 @@ class App extends React.Component {
             <div>
                 <h1>Anna palautetta</h1>
                 <div>
-                    <Button onClickFunction={this.increaseGood} text="Hyvä" />
-                    <Button onClickFunction={this.increaseNeutral} text="Neutraali" />
-                    <Button onClickFunction={this.increaseBad} text="Huono" />
+                    <Button onClickFunction={this.buttonEventHandler('good')} text="Hyvä" />
+                    <Button onClickFunction={this.buttonEventHandler('neutral')} text="Neutraali" />
+                    <Button onClickFunction={this.buttonEventHandler('bad')} text="Huono" />
                 </div>
 
                 <h1>Statistiikka</h1>
