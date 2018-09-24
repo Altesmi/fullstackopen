@@ -24,7 +24,7 @@ class App extends React.Component {
 
         return () => {
             this.setState({points: copyOfArray})
-            /* update the best anecodte*/
+            /* update the best anecdote*/
             this.setState({bestAnecdote: copyOfArray.indexOf(Math.max(...copyOfArray))})
         }
     }
