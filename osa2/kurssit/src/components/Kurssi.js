@@ -52,6 +52,7 @@ const Yhteensa = (props) => {
                     osa.tehtavia + summa, 0)
             } tehtävää </p>
         </div>
+
     )
 }
 
