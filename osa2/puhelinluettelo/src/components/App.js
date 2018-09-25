@@ -5,8 +5,10 @@ class App extends React.Component {
         super(props)
         this.state = {
             persons: [
-                { name: 'Arto Hellas',
-                    id: 1 }
+                {
+                    name: 'Arto Hellas',
+                    id: 1
+                }
             ],
             newName: 'N.N'
         }
@@ -18,18 +20,28 @@ class App extends React.Component {
 
     addEntry = (event) => {
         event.preventDefault()
-        
-        const newEntryObject = {
-            name: this.state.newName,
-            id: this.state.persons.length + 1
+        /* check if the entry already exists */
+        if (this.state.persons.filter(
+            person =>
+                (person.name.toLowerCase() === this.state.newName.toLowerCase()))
+            .length > 0) {
+            alert('Nimi on jo luettelossa')
         }
-        const persons = this.state.persons.concat(newEntryObject)
-        this.setState( 
-            {
-                persons,
-                newName: 'N.N'
+
+        else {
+            const newEntryObject = {
+                name: this.state.newName,
+                id: this.state.persons.length + 1
             }
-        )
+            const persons = this.state.persons.concat(newEntryObject)
+
+            this.setState(
+                {
+                    persons,
+                    newName: 'N.N'
+                }
+            )
+        }
     }
 
     render() {
@@ -45,10 +57,10 @@ class App extends React.Component {
                     </div>
                 </form>
                 <h2>Numerot</h2>
-                {this.state.persons.map(person=><div key={person.id}> 
-                    {person.name} 
-                    </div>)}
-      </div>
+                {this.state.persons.map(person => <div key={person.id}>
+                    {person.name}
+                </div>)}
+            </div>
         )
     }
 }
