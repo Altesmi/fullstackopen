@@ -1,5 +1,6 @@
 import React from 'react';
 import AddPersonForm from './AddPersonForm'
+import FilterNumberInput from './FilterNumberInput'
 
 class App extends React.Component {
     constructor(props) {
@@ -13,7 +14,8 @@ class App extends React.Component {
                 { name: 'Lea Kutvonen', number: '040-123456', id: 4 }
             ],
             newName: 'N.N',
-            newNumber: '111-111'
+            newNumber: '111-111',
+            filterString: ''
         }
     }
 
@@ -21,8 +23,15 @@ class App extends React.Component {
         this.setState({ newName: event.target.value })
     }
 
-    newNroChanged = (event) => {
-        this.setState({ newNro: event.target.value })
+    newNumberChanged = (event) => {
+        this.setState({ newNumber: event.target.value })
+    }
+
+    filterPersons = (event) => {
+        /* set the new string to filterString in state*/
+
+        this.setState({filterString: event.target.value})
+
     }
 
     addEntry = (event) => {
@@ -54,10 +63,18 @@ class App extends React.Component {
     }
 
     render() {
+        /*Take all persons if filterString is empty and filter 
+        persons in state if filterString contains something*/
+        let persons = this.state.filterString.length > 0 ? 
+        this.state.persons.filter(person => person.name
+            .toLowerCase()
+            .includes(this.state.filterString.toLowerCase())) : 
+        this.state.persons
         return (
             <div>
                 <h2>Puhelinluettelo</h2>
-
+                <FilterNumberInput filterString={this.state.filterString} filterPersons={this.filterPersons}/> 
+                <h3>Lisää uusi</h3>
                 <AddPersonForm addEntry={this.addEntry}
                     newName={this.state.newName}
                     newNameChanged={this.newNameChanged}
@@ -66,9 +83,12 @@ class App extends React.Component {
 
                 <h2>Numerot</h2>
                 <table>
-                    {this.state.persons.map(person => <tr key={person.id}>
+                    <tbody>
+                    {/* Map with filterString if it deviates from empty string */}
+                    {persons.map(person => <tr key={person.id}>
                         <td>{person.name}</td><td> {person.number}</td>
                     </tr>)}
+                    </tbody>
                 </table>
             </div>)
     }
