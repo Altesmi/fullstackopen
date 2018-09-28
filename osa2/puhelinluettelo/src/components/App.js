@@ -23,8 +23,6 @@ class App extends React.Component {
   };
 
   filterPersons = event => {
-    /* set the new string to filterString in state*/
-
     this.setState({ filterString: event.target.value });
   };
 
@@ -90,7 +88,6 @@ class App extends React.Component {
         <h2>Numerot</h2>
         <table>
           <tbody>
-            {/* Map with filterString if it deviates from empty string */}
             {persons.map(person => (
               <tr key={person.id}>
                 <td>{person.name}</td>
