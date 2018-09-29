@@ -1,7 +1,9 @@
 import React from "react";
-import Axios from "axios";
 import AddPersonForm from "./AddPersonForm";
+import ShowPersons from "./ShowPersons";
+import PersonService from "../services/persons";
 import FilterNumberInput from "./FilterNumberInput";
+import axios from "axios";
 
 class App extends React.Component {
   constructor(props) {
@@ -28,31 +30,75 @@ class App extends React.Component {
 
   addEntry = event => {
     event.preventDefault();
+    let sameEntriesInDB = this.state.persons.filter(
+      person => person.name.toLowerCase() === this.state.newName.toLowerCase()
+    );
     /* check if the entry already exists */
-    if (
-      this.state.persons.filter(
-        person => person.name.toLowerCase() === this.state.newName.toLowerCase()
-      ).length > 0
-    ) {
-      alert("Nimi on jo luettelossa");
+    if (sameEntriesInDB.length === 1) {
+      // name exists, update number if the user wants
+      let reallyUpdate = window.confirm(
+        `${sameEntriesInDB[0].name} on jo luettelossa. Päivitetäänkö numero?`
+      );
+      if (reallyUpdate) {
+        const newPersonObject = {
+          ...sameEntriesInDB[0],
+          number: this.state.newNumber
+        };
+        PersonService.update(sameEntriesInDB[0].id, newPersonObject).then(
+          newPerson => {
+            let newPersonsArray = this.state.persons; // copy the old state
+            newPersonsArray[
+              sameEntriesInDB[0].id - 1
+            ].number = this.state.newNumber; // update the number
+            this.setState({
+              persons: newPersonsArray,
+              newName: "N.N",
+              newNumber: "111-111"
+            });
+          }
+        );
+      }
+    } else if (sameEntriesInDB.length > 1) {
+      // More than one same name in the database. Not handled currently
+      alert("Enemmän kuin yksi sama nimi taulukossa. Ei pystytä käsittelemään");
     } else {
-      const newEntryObject = {
+      // add new person
+      const newPersonObject = {
         name: this.state.newName,
         number: this.state.newNumber,
         id: this.state.persons.length + 1
       };
-      const persons = this.state.persons.concat(newEntryObject);
 
+      PersonService.create(newPersonObject).then(newPerson => {
+        this.setState({
+          persons: this.state.persons.concat(newPerson),
+          newName: "N.N",
+          newNumber: "111-111"
+        });
+      });
+    }
+  };
+
+  deleteEntry = personToBeDeleted => {
+    let reallyDelete = window.confirm(
+      `Poistetaanko todella ${personToBeDeleted.name}?`
+    );
+    if (reallyDelete) {
+      PersonService.deletePerson(personToBeDeleted.id);
+      //Update state
+      let personArrayWithoutRemovedPerson = this.state.persons.filter(
+        person => person.id !== personToBeDeleted.id
+      );
       this.setState({
-        persons,
-        newName: "N.N",
+        persons: personArrayWithoutRemovedPerson,
+        newPerson: "N.N",
         newNumber: "111-111"
       });
     }
   };
 
   componentDidMount() {
-    Axios.get("http://localhost:3001/persons").then(response => {
+    axios.get("http://localhost:3001/persons").then(response => {
       this.setState({ persons: response.data });
     });
   }
@@ -86,16 +132,7 @@ class App extends React.Component {
         />
 
         <h2>Numerot</h2>
-        <table>
-          <tbody>
-            {persons.map(person => (
-              <tr key={person.id}>
-                <td>{person.name}</td>
-                <td> {person.number}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ShowPersons persons={persons} deleteEntry={this.deleteEntry} />
       </div>
     );
   }
