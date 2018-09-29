@@ -3,6 +3,7 @@ import AddPersonForm from "./AddPersonForm";
 import ShowPersons from "./ShowPersons";
 import PersonService from "../services/persons";
 import FilterNumberInput from "./FilterNumberInput";
+import NotificationBox from "./Notification";
 import axios from "axios";
 
 class App extends React.Component {
@@ -12,7 +13,8 @@ class App extends React.Component {
       persons: [],
       newName: "N.N",
       newNumber: "111-111",
-      filterString: ""
+      filterString: "",
+      personAddedNotification: null
     };
   }
 
@@ -44,8 +46,8 @@ class App extends React.Component {
           ...sameEntriesInDB[0],
           number: this.state.newNumber
         };
-        PersonService.update(sameEntriesInDB[0].id, newPersonObject).then(
-          newPerson => {
+        PersonService.update(sameEntriesInDB[0].id, newPersonObject)
+          .then(newPerson => {
             let newPersonsArray = this.state.persons; // copy the old state
             newPersonsArray[
               sameEntriesInDB[0].id - 1
@@ -55,27 +57,39 @@ class App extends React.Component {
               newName: "N.N",
               newNumber: "111-111"
             });
-          }
-        );
+          })
+          .catch(error => {
+            alert("Henkilöä ei löytynyt enää. Päivitä selain!");
+          });
       }
     } else if (sameEntriesInDB.length > 1) {
       // More than one same name in the database. Not handled currently
       alert("Enemmän kuin yksi sama nimi taulukossa. Ei pystytä käsittelemään");
     } else {
       // add new person
+      //create unique id
+      let idField =
+        this.state.persons.length > 0
+          ? this.state.persons[this.state.persons.length - 1].id + 1
+          : 1;
       const newPersonObject = {
         name: this.state.newName,
         number: this.state.newNumber,
-        id: this.state.persons.length + 1
+        id: idField
       };
 
       PersonService.create(newPersonObject).then(newPerson => {
         this.setState({
           persons: this.state.persons.concat(newPerson),
           newName: "N.N",
-          newNumber: "111-111"
+          newNumber: "111-111",
+          personAddedNotification: `${newPerson.name} lisättiin onnistuneesti`
         });
       });
+
+      setTimeout(() => {
+        this.setState({ personAddedNotification: null });
+      }, 7000);
     }
   };
 
@@ -117,12 +131,14 @@ class App extends React.Component {
 
     return (
       <div>
+        <NotificationBox msg={this.state.personAddedNotification} />
+
         <h2>Puhelinluettelo</h2>
         <FilterNumberInput
           filterString={this.state.filterString}
           filterPersons={this.filterPersons}
         />
-        <h3>Lisää uusi</h3>
+        <h3>Lisää uusi / muuta olemassaolevaa puhelinnumeroa</h3>
         <AddPersonForm
           addEntry={this.addEntry}
           newName={this.state.newName}
