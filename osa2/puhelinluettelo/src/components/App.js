@@ -50,7 +50,7 @@ class App extends React.Component {
           .then(newPerson => {
             let newPersonsArray = this.state.persons; // copy the old state
             newPersonsArray[
-              sameEntriesInDB[0].id - 1
+              sameEntriesInDB[0].id-1
             ].number = this.state.newNumber; // update the number
             this.setState({
               persons: newPersonsArray,
@@ -66,16 +66,10 @@ class App extends React.Component {
       // More than one same name in the database. Not handled currently
       alert("Enemmän kuin yksi sama nimi taulukossa. Ei pystytä käsittelemään");
     } else {
-      // add new person
-      //create unique id
-      let idField =
-        this.state.persons.length > 0
-          ? this.state.persons[this.state.persons.length - 1].id + 1
-          : 1;
+      // add new person 
       const newPersonObject = {
         name: this.state.newName,
         number: this.state.newNumber,
-        id: idField
       };
 
       PersonService.create(newPersonObject).then(newPerson => {
@@ -112,7 +106,7 @@ class App extends React.Component {
   };
 
   componentDidMount() {
-    axios.get("http://localhost:3001/persons").then(response => {
+    axios.get("http://localhost:3001/api/persons").then(response => {
       this.setState({ persons: response.data });
     });
   }
