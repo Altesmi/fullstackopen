@@ -49,9 +49,11 @@ class App extends React.Component {
         PersonService.update(sameEntriesInDB[0].id, newPersonObject)
           .then(newPerson => {
             let newPersonsArray = this.state.persons; // copy the old state
-            newPersonsArray[
-              sameEntriesInDB[0].id-1
-            ].number = this.state.newNumber; // update the number
+            let personIndex = newPersonsArray.findIndex(person => {
+              return person.id === sameEntriesInDB[0].id;
+            });
+
+            newPersonsArray[personIndex].number = sameEntriesInDB.number;
             this.setState({
               persons: newPersonsArray,
               newName: "N.N",
@@ -66,10 +68,10 @@ class App extends React.Component {
       // More than one same name in the database. Not handled currently
       alert("Enemmän kuin yksi sama nimi taulukossa. Ei pystytä käsittelemään");
     } else {
-      // add new person 
+      // add new person
       const newPersonObject = {
         name: this.state.newName,
-        number: this.state.newNumber,
+        number: this.state.newNumber
       };
 
       PersonService.create(newPersonObject).then(newPerson => {
