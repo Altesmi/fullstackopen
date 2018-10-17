@@ -1,0 +1,156 @@
+import React from "react";
+import AddPersonForm from "./AddPersonForm";
+import ShowPersons from "./ShowPersons";
+import PersonService from "../services/persons";
+import FilterNumberInput from "./FilterNumberInput";
+import NotificationBox from "./Notification";
+import axios from "axios";
+
+
+//const baseURL = '/api/persons'
+
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      persons: [],
+      newName: "N.N",
+      newNumber: "111-111",
+      filterString: "",
+      personAddedNotification: null
+    };
+  }
+
+  newNameChanged = event => {
+    this.setState({ newName: event.target.value });
+  };
+
+  newNumberChanged = event => {
+    this.setState({ newNumber: event.target.value });
+  };
+
+  filterPersons = event => {
+    this.setState({ filterString: event.target.value });
+  };
+
+  addEntry = event => {
+    event.preventDefault();
+    let sameEntriesInDB = this.state.persons.filter(
+      person => person.name.toLowerCase() === this.state.newName.toLowerCase()
+    );
+    /* check if the entry already exists */
+    if (sameEntriesInDB.length === 1) {
+      // name exists, update number if the user wants
+      let reallyUpdate = window.confirm(
+        `${sameEntriesInDB[0].name} on jo luettelossa. Päivitetäänkö numero?`
+      );
+      if (reallyUpdate) {
+        const newPersonObject = {
+          ...sameEntriesInDB[0],
+          number: this.state.newNumber
+        };
+        PersonService.update(sameEntriesInDB[0].id, newPersonObject)
+          .then(newPerson => {
+            let newPersonsArray = this.state.persons; // copy the old state
+            let personIndex = newPersonsArray.findIndex(person => {
+              return person.id === sameEntriesInDB[0].id;
+            });
+
+            newPersonsArray[personIndex].number = newPersonObject.number;
+            this.setState({
+              persons: newPersonsArray,
+              newName: "N.N",
+              newNumber: "111-111"
+            });
+          })
+          .catch(error => {
+            alert("Henkilöä ei löytynyt enää. Päivitä selain!");
+          });
+      }
+    } else if (sameEntriesInDB.length > 1) {
+      // More than one same name in the database. Not handled currently
+      alert("Enemmän kuin yksi sama nimi taulukossa. Ei pystytä käsittelemään");
+    } else {
+      // add new person
+      const newPersonObject = {
+        name: this.state.newName,
+        number: this.state.newNumber
+      };
+
+      PersonService.create(newPersonObject).then(newPerson => {
+        this.setState({
+          persons: this.state.persons.concat(newPerson),
+          newName: "N.N",
+          newNumber: "111-111",
+          personAddedNotification: `${newPerson.name} lisättiin onnistuneesti`
+        });
+      });
+
+      setTimeout(() => {
+        this.setState({ personAddedNotification: null });
+      }, 7000);
+    }
+  };
+
+  deleteEntry = personToBeDeleted => {
+    let reallyDelete = window.confirm(
+      `Poistetaanko todella ${personToBeDeleted.name}?`
+    );
+    if (reallyDelete) {
+      PersonService.deletePerson(personToBeDeleted.id);
+      //Update state
+      let personArrayWithoutRemovedPerson = this.state.persons.filter(
+        person => person.id !== personToBeDeleted.id
+      );
+      this.setState({
+        persons: personArrayWithoutRemovedPerson,
+        newPerson: "N.N",
+        newNumber: "111-111"
+      });
+    }
+  };
+
+  componentDidMount() {
+    axios.get('/api/persons').then(response => {
+      this.setState({ persons: response.data });
+    });
+  }
+
+  render() {
+    /*Take all persons if filterString is empty and filter 
+        persons in state if filterString contains something*/
+    let persons =
+      this.state.filterString.length > 0
+        ? this.state.persons.filter(person =>
+            person.name
+              .toLowerCase()
+              .includes(this.state.filterString.toLowerCase())
+          )
+        : this.state.persons;
+
+    return (
+      <div>
+        <NotificationBox msg={this.state.personAddedNotification} />
+
+        <h2>Puhelinluettelo</h2>
+        <FilterNumberInput
+          filterString={this.state.filterString}
+          filterPersons={this.filterPersons}
+        />
+        <h3>Lisää uusi / muuta olemassaolevaa puhelinnumeroa</h3>
+        <AddPersonForm
+          addEntry={this.addEntry}
+          newName={this.state.newName}
+          newNameChanged={this.newNameChanged}
+          newNumber={this.state.newNumber}
+          newNumberChanged={this.newNumberChanged}
+        />
+
+        <h2>Numerot</h2>
+        <ShowPersons persons={persons} deleteEntry={this.deleteEntry} />
+      </div>
+    );
+  }
+}
+
+export default App;
