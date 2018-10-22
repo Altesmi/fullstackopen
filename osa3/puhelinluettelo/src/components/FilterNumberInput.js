@@ -1,8 +1,8 @@
 import React from 'react'
 
-const FilterNumberInput = (props) => { 
+const FilterNumberInput = (props) => {
 
-    return(
+    return (
         <form>
             Rajaa näytettäviä: <input value={props.filterString} onChange={props.filterPersons} />
         </form>
