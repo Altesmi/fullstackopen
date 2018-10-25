@@ -3,36 +3,29 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
+const blogsRouter = require("./controllers/blogs");
 
-const Blog = mongoose.model("Blog", {
-  title: String,
-  author: String,
-  url: String,
-  likes: Number
-});
+// const mongoose = require("mongoose");
 
-module.exports = Blog;
+// const Blog = mongoose.model("Blog", {
+//   title: String,
+//   author: String,
+//   url: String,
+//   likes: Number
+// });
+
+//module.exports = Blog;
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/api/blogs",blogsRouter)
 
-const mongoUrl = 'mongodb://testi:testi123@ds139193.mlab.com:39193/blogilista';
-mongoose.connect(mongoUrl);
+//require("dotenv").config();
 
-app.get("/api/blogs", (request, response) => {
-  Blog.find({}).then(blogs => {
-    response.json(blogs);
-  });
-});
+//mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 
-app.post("/api/blogs", (request, response) => {
-  const blog = new Blog(request.body);
 
-  blog.save().then(result => {
-    response.status(201).json(result);
-  });
-});
+
 
 const PORT = 3003;
 app.listen(PORT, () => {
