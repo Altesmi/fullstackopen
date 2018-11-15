@@ -4,15 +4,16 @@
   "description": "Blogilistan tehtävät",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "watch": "nodemon index.js",
-    "test": "jest --verbose"
+    "start": "NODE_ENV=production node index.js",
+    "watch": "NODE_ENV=development nodemon index.js",
+    "test": "NODE_ENV=test jest --verbose"
   },
   "author": "Olli-Pekka Tikkanen",
   "license": "MIT",
   "devDependencies": {
     "jest": "^23.6.0",
-    "nodemon": "^1.18.4"
+    "nodemon": "^1.18.4",
+    "supertest": "^3.3.0"
   },
   "jest": {
     "testEnvironment": "node"

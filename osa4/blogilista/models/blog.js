@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
+const config = require("../utils/config")
 
-require("dotenv").config();
-
-const url = process.env.MONGODB_URI;
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 
 mongoose.connect(
-  url,
+  config.mongoUrl,
   { useNewUrlParser: true }
 );
 
@@ -27,5 +28,9 @@ blogSchema.statics.format = function(blog) {
 };
 
 const Blog = mongoose.model("Blog", blogSchema);
+
+Blog.close = function() {
+  mongoose.connection.close()
+}
 
 module.exports = Blog;

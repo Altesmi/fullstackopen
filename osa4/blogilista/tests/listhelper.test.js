@@ -1,5 +1,6 @@
 const listHelper = require('../utils/list_helper')
 
+describe.skip("List helper tests", () => {
 test('dummy is called', () => {
   const blogs = []
 
@@ -77,7 +78,7 @@ describe('most blogs', () => {
   })
 })
 
-describe.only('most blogs', () => {
+describe('most blogs', () => {
   test('when no blogs empty object is returned', () => {
     const result = listHelper.mostLikes(listWithNoBlogs);
     expect(result).toMatchObject({})
@@ -98,7 +99,7 @@ describe.only('most blogs', () => {
     expect(result).toMatchObject({author: "Henkilo 3", likes: 40})
   })
 })
-
+})
 // Define some blog data
 const listWithOneBlog = [
   {
