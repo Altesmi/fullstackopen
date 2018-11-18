@@ -6,12 +6,27 @@ blogsRouter.get("/", async (request, response) => {
   response.json(blogs.map(blog=>Blog.format(blog)))
   });
   
-  blogsRouter.post("/", (request, response) => {
+  blogsRouter.post("/", async (request, response) => {
     const blog = new Blog(request.body);
   
-    blog.save().then(result => {
-      response.status(201).json(Blog.format(result));
-    });
+    //if blog does not contain title or url return 400
+
+    if(typeof(blog.title) === 'undefined' || typeof(blog.url) === 'undefined') {
+      return response.status(400).json({ Error: 'Content and URL need to be speified' })
+    }
+
+    //if there is no likes field, likes is set to 0
+
+    if(typeof(blog.likes) === 'undefined') {
+      blog.likes = 0
+    }
+    await blog.save()
+
+    return response.status(201).json(Blog.format(blog))
+    // blog.save().then(result => {
+    //   response.status(201).json(Blog.format(result));
+    // });
+
   });
 
   blogsRouter.close = function () {
