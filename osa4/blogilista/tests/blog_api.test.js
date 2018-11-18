@@ -2,24 +2,7 @@ const supertest = require('supertest')
 const { app, server } = require('../index')
 const api = supertest(app)
 const Blog = require('../models/blog')
-const testBlogs = [{
-    title: 'blogi 1',
-    author: 'Henkilo 1',
-    url: 'http://url1.com',
-    likes: 2,
-  },
-  {
-    title: 'blogi 1',
-    author: 'Henkilo 2',
-    url: 'http://url2.com',
-    likes: 12,
-  },
-  {
-    title: 'blogi 1',
-    author: 'Henkilo 1',
-    url: 'http://url1.com',
-    likes: 2,
-  }]
+const {format, blogsInDB, testBlogs, newBlog, newBlogWithoutLikes, newBlogWithoutTitle, newBlogWithoutUrl} = require('./test_helper')
 
 beforeAll(async () => {
     await Blog.remove({})
@@ -50,33 +33,7 @@ describe('GET tests', () => {
     })
 })
 
-describe.only('Blog post tests', () => {
-  const newBlog = {
-    author: "uusi henkilö",
-    title: "Uusi blogi",
-    url: "http://lisaablogi.com",
-    likes: 400
-  }
-
-  const newBlogWithoutLikes = {
-    author: "Liketon henkilo",
-    title: "Tässä ei ole likea",
-    url: "http://eilikea.com",
-  }
-
-  const newBlogWithoutTitle = {
-    author: "no title person",
-    url: "http://eititlea.com",
-    likes: 5
-  }
-
-  const newBlogWithoutUrl = {
-    author: "no url person",
-    title: "This blog has no URL",
-    likes: 5
-  }
-
-
+describe('Blog post tests', () => {
 
   test('server returns status 201 when blog is posted', async () => {
     await api.post('/api/blogs')
@@ -85,23 +42,23 @@ describe.only('Blog post tests', () => {
   })
 
   test('A blog is added to the DB', async () => {
-    const blogsBefore = await api.get('/api/blogs')
+    const blogsBefore = await blogsInDB()
 
     await api.post('/api/blogs')
     .send(newBlog)
 
-    const blogsAfter = await api.get('/api/blogs')
+    const blogsAfter = await blogsInDB()
 
-    expect(blogsBefore.length).toBe(blogsBefore.legnth)
+    expect(blogsAfter.length).toBe(blogsBefore.length + 1)
   })
 
   test('The specific blog is added', async () => {
     await api.post('/api/blogs')
     .send(newBlog)
 
-    const res = await api.get('/api/blogs')
+    const res = await blogsInDB()
  
-    const titles = res.body.map(r => r.title)
+    const titles = res.map(r => r.title)
 
     expect(titles).toContainEqual('Uusi blogi')
     
@@ -132,10 +89,71 @@ describe.only('Blog post tests', () => {
     .send(newBlogWithoutUrl)
     .expect(400)
   })
-
-
-
   
+})
+
+describe('Blog delete tests', () => {
+
+  test('A specific blog is deleted', async () => {
+    blogsBefore = await blogsInDB()
+    blogToBeDeleted = blogsBefore[1]
+    
+    await api.delete(`/api/blogs/${blogToBeDeleted.id}`)
+    .expect(204)
+
+    blogsAfter = await blogsInDB();
+
+    blogsAfterIDs = blogsAfter.map(blog => blog.id)
+    expect(blogsAfterIDs).not.toContainEqual(blogToBeDeleted.id)
+    expect(blogsAfter.length).toBe(blogsBefore.length - 1)
+
+  })
+
+  test('A wrong id returns 400', async () => {
+    await api.delete(`/api/blogs/1`)
+    .expect(400)
+  })
+})
+
+describe.only('Blog update tests', () => {
+
+  test('A specific blog can be updated', async () => {
+
+    blogsBefore = await blogsInDB()
+
+    blogToBeUpdated = blogsBefore[1]
+    blogToBeUpdated.likes = 555
+
+    const result = await api.put(`/api/blogs/${blogToBeUpdated.id}`)
+    .send(blogToBeUpdated)
+
+    blogsAfter = await blogsInDB()
+
+    expect(blogsAfter[1].likes).toBe(blogToBeUpdated.likes)
+
+  })
+
+  test('A blog without valid blog fields can not be updated', async () => {
+
+    blogsBefore = await blogsInDB()
+
+    blogToBeUpdated = {
+      id: blogsBefore[1].id
+    }
+
+    await api.put(`/api/blogs/${blogToBeUpdated.id}`)
+    .send(blogToBeUpdated)
+    .expect(400)
+
+  })
+
+  test('A blog with wrong id can not be updated', async () => {
+
+    blogsBefore = await blogsInDB()
+
+    await api.put('/api/blogs/1').expect(500)
+    .send(blogsBefore[1])
+  })
 })
 
 afterAll(() => {
