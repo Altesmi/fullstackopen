@@ -1,5 +1,6 @@
 POST http://localhost:3003/api/blogs 
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV1c2lzIiwiaWQiOiI1YmYxZmY1ZDM2OTU5OTMyMjk0M2VlMGYiLCJpYXQiOjE1NDI2NTI2NTV9.mBZKKtP2J5Y7KTQT3jqXGeX4htZ4WOmGWm7TNlRbLp4
 
 {
 "author": "Opa",

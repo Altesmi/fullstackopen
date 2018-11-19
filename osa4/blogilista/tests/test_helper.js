@@ -205,9 +205,7 @@ const usersInDB = async () => {
       userWithBadPassword,
       userWithoutAdultProperty,
       newUser,
-      format,
       blogsInDB,
-      formatUser,
       usersInDB
 
   }
