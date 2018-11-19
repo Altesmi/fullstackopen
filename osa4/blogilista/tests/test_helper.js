@@ -1,14 +1,13 @@
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 // Define some blog data
 const listWithOneBlog = [
     {
-      _id: '5a422aa71b54a676234d17f8',
       title: 'blogi 1',
       author: 'Henkilo 2',
       url: 'http://url1.com',
       likes: 2,
-      __v: 0
     }
   ]
   const listWithNoBlogs = []
@@ -16,102 +15,78 @@ const listWithOneBlog = [
   const listWithOnlyOneDummyObject = [{}]
   
   const listWithTwoBlogs = [{
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 1',
     url: 'http://url1.com',
     likes: 2,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 2',
     url: 'http://url2.com',
     likes: 12,
-    __v: 0
   }
   ]
   
   const listWithTenBlogs = [{
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 1',
     url: 'http://url1.com',
     likes: 2,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 2',
     url: 'http://url2.com',
     likes: 12,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 1',
     url: 'http://url1.com',
     likes: 2,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 2',
     url: 'http://url2.com',
     likes: 12,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 1',
     url: 'http://url1.com',
     likes: 2,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 3',
     url: 'http://url2.com',
     likes: 12,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 3',
     url: 'http://url1.com',
     likes: 2,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 3',
     url: 'http://url2.com',
     likes: 12,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 3',
     url: 'http://url1.com',
     likes: 2,
-    __v: 0
   },
   {
-    _id: '5a422aa71b54a676234d17f8',
     title: 'blogi 1',
     author: 'Henkilo 3',
     url: 'http://url2.com',
     likes: 12,
-    __v: 0
   }
   ]
 
@@ -159,21 +134,59 @@ const newBlog = {
     likes: 5
   }
 
+  const initialUsers = [{
+    name: "kayttaja yksi",
+    username: "kayt1",
+    adult: true,
+    password: "ggpassu"
+  },
+  {
+    name: "kayttaja kaksi",
+    username: "kayt2",
+    adult: false,
+    password: "wppassu"
+  }]
 
-  const format = (blog) => {
-      return {
-          author: blog.author,
-          title: blog.title,
-          url: blog.url,
-          likes: blog.likes,
-          id: blog._id
-      }
+  const newUser = {
+    name: "Uusi kayttaja",
+    username: "uusis",
+    adult: true,
+    password: "passu"
   }
+
+  const userWithAlreadyExistingUsername = {
+    name: "kiva kayttaja",
+    username: "kayt1",
+    adult: true,
+    password: "niinpaniin"
+  }
+
+  const userWithBadPassword = {
+    name: "paha passu",
+    username: "pahis",
+    adult: false,
+    password: "123"
+  }
+
+  const userWithoutAdultProperty = {
+    name: "ei adultia",
+    username: "adultis",
+    password: "kivapassu234"
+  }
+
+
+
+const usersInDB = async () => {
+
+  const users = await User.find({})
+
+  return users.map(User.format)
+}
 
   const blogsInDB = async () => {
     const blogs = await Blog.find({})
 
-    return blogs.map(format)
+    return blogs.map(Blog.format)
   }
 
   module.exports = {
@@ -187,7 +200,14 @@ const newBlog = {
       listWithOnlyOneDummyObject,
       listWithTenBlogs,
       listWithTwoBlogs,
+      initialUsers,
+      userWithAlreadyExistingUsername,
+      userWithBadPassword,
+      userWithoutAdultProperty,
+      newUser,
       format,
-      blogsInDB
+      blogsInDB,
+      formatUser,
+      usersInDB
 
   }
