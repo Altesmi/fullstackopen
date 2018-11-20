@@ -20,7 +20,7 @@ blogsRouter.post("/", async (request, response) => {
     if (!token || !decodedToken.id) {
       return response.status(400).json({ error: "Invalid or missing token" })
     }
-    if (typeof (blog.title) === 'undefined' || typeof (blog.url) === 'undefined') {
+    if (typeof (blog.title) === 'undefined' || typeof (blog.url) === 'undefined' || blog.title.length === 0 || blog.url.length === 0) {
       return response.status(400).json({ Error: 'Content and URL need to be speified' })
     }
 
