@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import Loginform from './components/Loginform'
 import Blogform from './components/Blogform'
 import NotificationBox from './components/Notification'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -63,18 +64,43 @@ class App extends React.Component {
     }
   }
 
+  likeButtonPressed = async (blog) => {
+    try {
+    const result = await blogService.increaseLike(blog)
+
+    let newBlogs = this.state.blogs
+    newBlogs[newBlogs.findIndex(b => b.id === blog.id)] = result
+    this.setState({blogs: newBlogs})
+    } catch(exception) {
+      console.log(exception)
+    }
+  }
+
+  deleteBlogButtonPressed = async (id) => {
+    console.log(id)
+    try {
+    await blogService.deleteBlog(id)
+
+    let newBlogs = this.state.blogs
+    newBlogs = newBlogs.filter(b => b.id !== id)
+    this.setState({blogs: newBlogs})
+    } catch(exception) {
+      console.log(exception)
+    }
+  }
+
   postBlog = async (event) => {
     event.preventDefault()
     try {
-      await blogService.create(this.state.newBlog)
+      const result = await blogService.create(this.state.newBlog)
       let oldBlogs = this.state.blogs
-      oldBlogs.push(this.state.newBlog)
+      oldBlogs.push(result)
       this.setState({
         newBlog: { title: '', author: '', url: '' },
         blogs: oldBlogs
       })
 
-      const lastBlog = this.state.blogs[this.state.blogs.length-1]
+      const lastBlog = this.state.blogs[this.state.blogs.length - 1]
       this.setState({ success: `Succesfully posted blog titled ${lastBlog.title}` })
       setTimeout(() => {
         this.setState({ success: null })
@@ -133,15 +159,24 @@ class App extends React.Component {
             <p>{this.state.user.name} logged in
                     <button type='submit' onClick={this.logout}>logout</button></p>
             <h2>blogs</h2>
-            <Blogform
-              blogFieldChanged={this.blogFieldChanged}
-              title={this.state.newBlog.title}
-              author={this.state.newBlog.author}
-              url={this.state.newBlog.url}
-              postBlog={this.postBlog}
-            />
-            {this.state.blogs.map(blog =>
-              <Blog key={blog.id} blog={blog} />)}
+            <Togglable buttonlabel="Add new blog">
+              <Blogform
+                blogFieldChanged={this.blogFieldChanged}
+                title={this.state.newBlog.title}
+                author={this.state.newBlog.author}
+                url={this.state.newBlog.url}
+                postBlog={this.postBlog}
+              />
+            </Togglable>
+            {this.state.blogs.sort((a,b) => //sort the blogs before render
+              b.likes-a.likes
+            )
+            .map(blog =>
+              <Blog key={blog.id} 
+              blog={blog} 
+              user={this.state.user}
+              deleteBlog = { () => this.deleteBlogButtonPressed(blog.id)}
+              increaseLikes={() => this.likeButtonPressed(blog)} />)}
           </div>
         }
       </div>

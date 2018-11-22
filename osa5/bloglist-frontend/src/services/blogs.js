@@ -21,4 +21,43 @@ const create = async (newObject) => {
   return response.data
 }
 
-export default { getAll, setToken, create}
+const deleteBlog = async (id) => {
+  const config = {
+    headers: {'Authorization': token}
+  }
+
+  const delUrl = `/api/blogs/${id}`
+
+  const response = await axios.delete(delUrl,config)
+
+  return response.data
+}
+
+const increaseLike = async (blogObject) => {
+  const putUrl = `/api/blogs/${blogObject.id}`
+
+  const data = {
+    user: blogObject.user._id,
+    likes: blogObject.likes + 1,
+    author: blogObject.author,
+    url: blogObject.url,
+    title: blogObject.title
+  }
+  try {
+
+    const response = await axios.put(putUrl, data)
+    return response.data // this is the modified blog
+
+  } catch (exception) {
+    console.log(exception)
+  }
+
+
+}
+
+export default { 
+  getAll, 
+  setToken, 
+  create, 
+  increaseLike,
+  deleteBlog }
