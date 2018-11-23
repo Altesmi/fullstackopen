@@ -135,7 +135,7 @@ class App extends React.Component {
 
   render() {
     const loginform = () => (
-      <div>
+      <div className='loginForm'>
         <Loginform
           username={this.state.username}
           password={this.state.password}

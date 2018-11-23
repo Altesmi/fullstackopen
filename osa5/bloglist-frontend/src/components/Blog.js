@@ -12,17 +12,17 @@ const Blog = ({blog,increaseLikes,deleteBlog,user}) => {
     marginBottom: 5
   }
   return(
-  <div style={blogStyle}>
+  <div style={blogStyle} className='blogName'>
     {blog.title} {blog.author} 
     
     <Togglable buttonlabel="Show more">
-      <div>
+      <div className='url'>
         url: <a href={blog.url}>{blog.url}</a>
       </div>
-      <div>Likes: {blog.likes} 
+      <div className='likes'>Likes: {blog.likes} 
       <button value={blog} onClick={increaseLikes}>Like</button>
       </div>
-      <div>Added by {typeof(blog.user)!=='undefined' ? blog.user.username: 'anonymous'}
+      <div className='addedInfo'>Added by {typeof(blog.user)!=='undefined' ? blog.user.username: 'anonymous'}
         { (typeof(blog.user) === 'undefined' || (user.username===blog.user.username))
              && <button onClick={deleteBlog}>Delete</button>
         } 
