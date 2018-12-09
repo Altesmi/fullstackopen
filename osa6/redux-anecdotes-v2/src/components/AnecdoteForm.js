@@ -1,14 +1,24 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { anecdoteCreation } from '../reducers/anecdoteReducer'
-import { notificationSetter, notificationZeroer }  from '../reducers/notificationReducer'
+import {
+  notificationSetter,
+  notificationZeroer
+} from '../reducers/notificationReducer'
+import anecdoteService from '../services/anecdotes'
 
 class AnecdoteForm extends React.Component {
+  getId = () => (100000 * Math.random()).toFixed(0)
   handleSubmit = e => {
     e.preventDefault()
-    this.props.store.dispatch(anecdoteCreation(e.target.anecdote.value))
-    this.props.store.dispatch(notificationSetter(`Anecdote '${e.target.anecdote.value}' added!`))
+    const newId = this.getId()
+    anecdoteService.createNew(newId, e.target.anecdote.value)
+    this.props.anecdoteCreation(newId,e.target.anecdote.value)
+    this.props.notificationSetter(
+      `Anecdote '${e.target.anecdote.value}' added!`
+    )
     setTimeout(() => {
-      this.props.store.dispatch(notificationZeroer())
+      this.props.notificationZeroer()
     }, 5000)
     e.target.anecdote.value = ''
   }
@@ -27,4 +37,7 @@ class AnecdoteForm extends React.Component {
   }
 }
 
-export default AnecdoteForm
+export default connect(
+  null,
+  { anecdoteCreation, notificationSetter, notificationZeroer }
+)(AnecdoteForm)
