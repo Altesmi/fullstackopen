@@ -10,17 +10,18 @@ const notificationReducer = (store = 'Waiting for an action...', action) => {
   }
 }
 
-
-export const notificationSetter = (msg) => {
-  return {
-    type: 'CHANGE_NOTIFICATION_MESSAGE',
-    msg: msg
-  }
-}
-
-export const notificationZeroer = () => {
-  return {
-    type: 'ZERO'
+export const notify = (msg, time) => {
+  return async dispatch => {
+    const timeAsNumber = Number(time)
+    await dispatch({
+      type: 'CHANGE_NOTIFICATION_MESSAGE',
+      msg: msg
+    })
+    await setTimeout(() => {
+      dispatch({
+        type: 'ZERO'
+      })
+    }, timeAsNumber * 1000)
   }
 }
 

@@ -1,16 +1,17 @@
 import axios from 'axios'
 
 const baseURL = 'http://localhost:3001/anecdotes'
+const getId = () => (100000 * Math.random()).toFixed(0)
 const getAll = async () => {
   const response = await axios.get(baseURL)
   return response.data
 }
 
-const createNew = async (id,content) => {
+const createNew = async (content) => {
   const newAnecdote = {
     content: content,
     votes: 0,
-    id: id
+    id: getId()
   }
   const response = await axios.post(baseURL, newAnecdote)
 
