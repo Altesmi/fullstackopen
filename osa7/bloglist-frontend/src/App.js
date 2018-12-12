@@ -6,6 +6,8 @@ import NotificationBox from './components/Notification'
 import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import { notifySuccess, notifyError } from './reducers/notificationReducer'
+import { connect } from 'react-redux'
 
 class App extends React.Component {
   constructor(props) {
@@ -14,8 +16,6 @@ class App extends React.Component {
       user: null,
       username: '',
       password: '',
-      error: null,
-      success: null,
       blogs: [],
       newBlog: {
         url: '',
@@ -27,17 +27,17 @@ class App extends React.Component {
 
   loginBaseUrl = '/api/login'
 
-  loginFieldChanged = (event) => {
+  loginFieldChanged = event => {
     this.setState({ [event.target.name]: event.target.value })
   }
 
-  blogFieldChanged = (event) => {
+  blogFieldChanged = event => {
     let newBlogChange = this.state.newBlog
     newBlogChange[event.target.name] = event.target.value
     this.setState({ newBlog: newBlogChange })
   }
 
-  login = async (event) => {
+  login = async event => {
     event.preventDefault()
     try {
       const user = await loginService.login({
@@ -51,45 +51,39 @@ class App extends React.Component {
       })
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
       blogService.setToken(user.token)
-      this.setState({ success: `Succesfully logged in ${this.state.user.name}` })
-      setTimeout(() => {
-        this.setState({ success: null })
-      }, 5000)
+      this.props.notifySuccess(`Succesfully loggend in ${this.state.user.name}`,5)
     } catch (exception) {
-
-      this.setState({ error: 'Wrong username or password' })
-      setTimeout(() => {
-        this.setState({ error: null })
-      }, 5000)
+      console.log(exception)
+      this.props.notifyError(`Wrong username of password`, 5)
     }
   }
 
-  likeButtonPressed = async (blog) => {
+  likeButtonPressed = async blog => {
     try {
-    const result = await blogService.increaseLike(blog)
+      const result = await blogService.increaseLike(blog)
 
-    let newBlogs = this.state.blogs
-    newBlogs[newBlogs.findIndex(b => b.id === blog.id)] = result
-    this.setState({blogs: newBlogs})
-    } catch(exception) {
+      let newBlogs = this.state.blogs
+      newBlogs[newBlogs.findIndex(b => b.id === blog.id)] = result
+      this.setState({ blogs: newBlogs })
+    } catch (exception) {
       console.log(exception)
     }
   }
 
-  deleteBlogButtonPressed = async (id) => {
+  deleteBlogButtonPressed = async id => {
     console.log(id)
     try {
-    await blogService.deleteBlog(id)
+      await blogService.deleteBlog(id)
 
-    let newBlogs = this.state.blogs
-    newBlogs = newBlogs.filter(b => b.id !== id)
-    this.setState({blogs: newBlogs})
-    } catch(exception) {
+      let newBlogs = this.state.blogs
+      newBlogs = newBlogs.filter(b => b.id !== id)
+      this.setState({ blogs: newBlogs })
+    } catch (exception) {
       console.log(exception)
     }
   }
 
-  postBlog = async (event) => {
+  postBlog = async event => {
     event.preventDefault()
     try {
       const result = await blogService.create(this.state.newBlog)
@@ -101,10 +95,11 @@ class App extends React.Component {
       })
 
       const lastBlog = this.state.blogs[this.state.blogs.length - 1]
-      this.setState({ success: `Succesfully posted blog titled ${lastBlog.title}` })
-      setTimeout(() => {
-        this.setState({ success: null })
-      }, 5000)
+
+      this.props.notifySuccess(
+        `Succesfully posted blog titled "${lastBlog.title}"`,
+        5
+      )
     } catch (exception) {
       console.log(exception)
       this.setState({ error: 'Could not post blog' })
@@ -114,7 +109,7 @@ class App extends React.Component {
     }
   }
 
-  logout = (event) => {
+  logout = event => {
     event.preventDefault()
     window.localStorage.removeItem('loggedBlogAppUser')
     this.setState({ user: null })
@@ -122,9 +117,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    blogService.getAll().then(blogs =>
-      this.setState({ blogs })
-    )
+    blogService.getAll().then(blogs => this.setState({ blogs }))
     const loggedUser = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUser) {
       const user = JSON.parse(loggedUser)
@@ -135,7 +128,7 @@ class App extends React.Component {
 
   render() {
     const loginform = () => (
-      <div className='loginForm'>
+      <div className="loginForm">
         <Loginform
           username={this.state.username}
           password={this.state.password}
@@ -145,19 +138,20 @@ class App extends React.Component {
       </div>
     )
 
-
     return (
       <div>
-        <NotificationBox
-          msg={this.state.error}
-          classname='errorNotification' />
-        <NotificationBox
-          msg={this.state.success}
-          classname='successNotification' />
-        {this.state.user === null ? loginform() :
+        <NotificationBox />
+
+        {this.state.user === null ? (
+          loginform()
+        ) : (
           <div>
-            <p>{this.state.user.name} logged in
-                    <button type='submit' onClick={this.logout}>logout</button></p>
+            <p>
+              {this.state.user.name} logged in
+              <button type="submit" onClick={this.logout}>
+                logout
+              </button>
+            </p>
             <h2>blogs</h2>
             <Togglable buttonlabel="Add new blog">
               <Blogform
@@ -168,20 +162,30 @@ class App extends React.Component {
                 postBlog={this.postBlog}
               />
             </Togglable>
-            {this.state.blogs.sort((a,b) => //sort the blogs before render
-              b.likes-a.likes
-            )
-            .map(blog =>
-              <Blog key={blog.id} 
-              blog={blog} 
-              user={this.state.user}
-              deleteBlog = { () => this.deleteBlogButtonPressed(blog.id)}
-              increaseLikes={() => this.likeButtonPressed(blog)} />)}
+            {this.state.blogs
+              .sort(
+                (
+                  a,
+                  b //sort the blogs before render
+                ) => b.likes - a.likes
+              )
+              .map(blog => (
+                <Blog
+                  key={blog.id}
+                  blog={blog}
+                  user={this.state.user}
+                  deleteBlog={() => this.deleteBlogButtonPressed(blog.id)}
+                  increaseLikes={() => this.likeButtonPressed(blog)}
+                />
+              ))}
           </div>
-        }
+        )}
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default connect(
+  null,
+  { notifySuccess, notifyError }
+)(App)
