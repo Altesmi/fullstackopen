@@ -4,8 +4,8 @@ import Loginform from './components/Loginform'
 import Blogform from './components/Blogform'
 import NotificationBox from './components/Notification'
 import Togglable from './components/Togglable'
-import blogService from './services/blogs'
-import loginService from './services/login'
+//import blogService from './services/blogs'
+//import loginService from './services/login'
 import { notifySuccess, notifyError } from './reducers/notificationReducer'
 import { usersInitialization } from './reducers/usersReducer'
 import {
@@ -14,13 +14,14 @@ import {
   blogDelete,
   increaseLikes
 } from './reducers/blogReducer'
+import { logIn, logOut, setUser } from './reducers/userReducer'
 import { connect } from 'react-redux'
 
 class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      user: null,
+      //user: null,
       username: '',
       password: '',
       newBlog: {
@@ -46,25 +47,31 @@ class App extends React.Component {
   login = async event => {
     event.preventDefault()
     try {
-      const user = await loginService.login({
+      const user = {
         username: this.state.username,
         password: this.state.password
-      })
-      this.setState({
-        username: '',
-        password: '',
-        user
-      })
-      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
-      blogService.setToken(user.token)
+      }
+      await this.props.logIn(user)
       this.props.notifySuccess(
-        `Succesfully loggend in ${this.state.user.name}`,
+        `Succesfully loggend in ${this.props.user.name}`,
         5
       )
+      this.setState({
+        username: '',
+        password: ''
+      })
     } catch (exception) {
       console.log(exception)
-      this.props.notifyError(`Wrong username of password`, 5)
+      this.props.notifyError(`Wrong username or password`, 5)
     }
+  }
+
+  logout = event => {
+    event.preventDefault()
+    // window.localStorage.removeItem('loggedBlogAppUser')
+    // this.setState({ user: null })
+    // blogService.setToken('')
+    this.props.logOut()
   }
 
   likeButtonPressed = async blog => {
@@ -99,21 +106,15 @@ class App extends React.Component {
     }
   }
 
-  logout = event => {
-    event.preventDefault()
-    window.localStorage.removeItem('loggedBlogAppUser')
-    this.setState({ user: null })
-    blogService.setToken('')
-  }
-
   componentDidMount = async () => {
     await this.props.blogsInitialization()
     await this.props.usersInitialization()
     const loggedUser = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUser) {
       const user = JSON.parse(loggedUser)
-      this.setState({ user })
-      blogService.setToken(user.token)
+      await this.props.setUser(user)
+      //this.setState({ user })
+      //blogService.setToken(user.token)
     }
   }
 
@@ -133,12 +134,12 @@ class App extends React.Component {
       <div>
         <NotificationBox />
 
-        {this.state.user === null ? (
+        {typeof(this.props.user.token) === 'undefined' ? (
           loginform()
         ) : (
           <div>
             <p>
-              {this.state.user.name} logged in
+              {this.props.user.name} logged in
               <button type="submit" onClick={this.logout}>
                 logout
               </button>
@@ -174,7 +175,8 @@ class App extends React.Component {
 const mapStateToProps = state => {
   return {
     users: state.users,
-    blogs: state.blogs
+    blogs: state.blogs,
+    user: state.user
   }
 }
 
@@ -187,6 +189,9 @@ export default connect(
     blogsInitialization,
     blogCreation,
     blogDelete,
-    increaseLikes
+    increaseLikes,
+    logIn,
+    logOut,
+    setUser
   }
 )(App)
