@@ -7,6 +7,13 @@ import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import { notifySuccess, notifyError } from './reducers/notificationReducer'
+import { usersInitialization } from './reducers/usersReducer'
+import {
+  blogsInitialization,
+  blogCreation,
+  blogDelete,
+  increaseLikes
+} from './reducers/blogReducer'
 import { connect } from 'react-redux'
 
 class App extends React.Component {
@@ -16,7 +23,6 @@ class App extends React.Component {
       user: null,
       username: '',
       password: '',
-      blogs: [],
       newBlog: {
         url: '',
         title: '',
@@ -51,7 +57,10 @@ class App extends React.Component {
       })
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
       blogService.setToken(user.token)
-      this.props.notifySuccess(`Succesfully loggend in ${this.state.user.name}`,5)
+      this.props.notifySuccess(
+        `Succesfully loggend in ${this.state.user.name}`,
+        5
+      )
     } catch (exception) {
       console.log(exception)
       this.props.notifyError(`Wrong username of password`, 5)
@@ -60,24 +69,15 @@ class App extends React.Component {
 
   likeButtonPressed = async blog => {
     try {
-      const result = await blogService.increaseLike(blog)
-
-      let newBlogs = this.state.blogs
-      newBlogs[newBlogs.findIndex(b => b.id === blog.id)] = result
-      this.setState({ blogs: newBlogs })
+      await this.props.increaseLikes(blog)
     } catch (exception) {
       console.log(exception)
     }
   }
 
   deleteBlogButtonPressed = async id => {
-    console.log(id)
     try {
-      await blogService.deleteBlog(id)
-
-      let newBlogs = this.state.blogs
-      newBlogs = newBlogs.filter(b => b.id !== id)
-      this.setState({ blogs: newBlogs })
+      await this.props.blogDelete(id)
     } catch (exception) {
       console.log(exception)
     }
@@ -86,26 +86,16 @@ class App extends React.Component {
   postBlog = async event => {
     event.preventDefault()
     try {
-      const result = await blogService.create(this.state.newBlog)
-      let oldBlogs = this.state.blogs
-      oldBlogs.push(result)
-      this.setState({
-        newBlog: { title: '', author: '', url: '' },
-        blogs: oldBlogs
-      })
-
-      const lastBlog = this.state.blogs[this.state.blogs.length - 1]
-
+      await this.props.blogCreation(this.state.newBlog)
       this.props.notifySuccess(
-        `Succesfully posted blog titled "${lastBlog.title}"`,
+        `Succesfully posted blog titled "${
+          this.props.blogs[this.props.blogs.length - 1].title
+        }"`,
         5
       )
     } catch (exception) {
       console.log(exception)
-      this.setState({ error: 'Could not post blog' })
-      setTimeout(() => {
-        this.setState({ error: null })
-      }, 5000)
+      this.props.notifyError('Error: Could not post blog!', 5)
     }
   }
 
@@ -116,8 +106,9 @@ class App extends React.Component {
     blogService.setToken('')
   }
 
-  componentDidMount() {
-    blogService.getAll().then(blogs => this.setState({ blogs }))
+  componentDidMount = async () => {
+    await this.props.blogsInitialization()
+    await this.props.usersInitialization()
     const loggedUser = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUser) {
       const user = JSON.parse(loggedUser)
@@ -162,13 +153,8 @@ class App extends React.Component {
                 postBlog={this.postBlog}
               />
             </Togglable>
-            {this.state.blogs
-              .sort(
-                (
-                  a,
-                  b //sort the blogs before render
-                ) => b.likes - a.likes
-              )
+            {this.props.blogs
+              .sort((a, b) => b.likes - a.likes)
               .map(blog => (
                 <Blog
                   key={blog.id}
@@ -185,7 +171,22 @@ class App extends React.Component {
   }
 }
 
+const mapStateToProps = state => {
+  return {
+    users: state.users,
+    blogs: state.blogs
+  }
+}
+
 export default connect(
-  null,
-  { notifySuccess, notifyError }
+  mapStateToProps,
+  {
+    notifySuccess,
+    notifyError,
+    usersInitialization,
+    blogsInitialization,
+    blogCreation,
+    blogDelete,
+    increaseLikes
+  }
 )(App)
