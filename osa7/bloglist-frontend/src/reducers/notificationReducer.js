@@ -1,7 +1,7 @@
 const notificationReducer = (store = [], action) => {
   switch (action.type) {
     case 'SET_NOTIFICATION':
-      return [ action.msg, action.className ]
+      return [ action.msg, action.color ]
 
     default:
       return store
@@ -14,14 +14,14 @@ export const notifySuccess = (msg, time) => {
     await dispatch({
       type: 'SET_NOTIFICATION',
       msg: msg,
-      className: 'successNotification'
+      color: 'success'
     })
 
     await setTimeout(() => {
       dispatch({
         type: 'SET_NOTIFICATION',
         msg: '',
-        className: ''
+        color: ''
       })
     }, timeAsNumber * 1000)
   }
@@ -33,7 +33,7 @@ export const notifyError = (msg, time) => {
     await dispatch({
       type: 'SET_NOTIFICATION',
       msg: msg,
-      className: 'errorNotification'
+      color: 'danger'
     })
 
     await setTimeout(() => {

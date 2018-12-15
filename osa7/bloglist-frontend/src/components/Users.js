@@ -27,7 +27,7 @@ class Users extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        users: state.users,
+        users: state.users.sort((a,b) => b.blogs.length - a.blogs.length),
     }
 }
 

@@ -1,27 +1,21 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
 import { connect } from 'react-redux'
+import { ListGroup, ListGroupItem } from 'react-bootstrap'
+import { LinkContainer } from 'react-router-bootstrap'
 
 class Bloglist extends React.Component {
-    render(){
-        const blogStyle = {
-            width: '50%',
-            paddingTop: 10,
-            paddingLeft: 10,
-            paddingBottom: 10,
-            border: 'dashed',
-            borderWidth: 1,
-            marginBottom: 5
-          }
-        return(
-            <div>
-
-            {this.props.blogs.map(blog => (
-                <div style={blogStyle} key={blog.id}>
-                    <NavLink exact to={`/blogs/${blog.id}`}>{blog.title}</NavLink>
-                </div>
-            ))}
-
+    render() {
+        return (
+            <div style={{paddingLeft: '10%'}}>
+                <ListGroup bsStyle="info" style={{ float: 'center', width: '65%' }}>
+                    {this.props.blogs.map(blog => (
+                        <LinkContainer to={`/blogs/${blog.id}`} key={blog.id}>
+                            <ListGroupItem key={blog.id}>
+                                {blog.title}
+                            </ListGroupItem>
+                        </LinkContainer>
+                    ))}
+                </ListGroup>
             </div>
         )
     }
@@ -30,7 +24,7 @@ class Bloglist extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        blogs: state.blogs.sort((a,b) => b.likes-a.likes),
+        blogs: state.blogs.sort((a, b) => b.likes - a.likes),
     }
 }
 
