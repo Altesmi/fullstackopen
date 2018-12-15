@@ -7,8 +7,8 @@ class Commentform extends React.Component {
     sendComment = e => {
         e.preventDefault()
         this.props.addComment(this.props.blog.id, e.target.comment.value)
-        this.props.notifySuccess(`Succesfully posted comment ${e.target.comment.value}
-            to blog ${this.props.blog.name}`, 5)
+        this.props.notifySuccess(`Succesfully posted comment "${e.target.comment.value}"
+            to blog "${this.props.blog.title}"`, 5)
         e.target.comment.value = ''
 
     }
