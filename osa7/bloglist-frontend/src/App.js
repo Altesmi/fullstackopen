@@ -1,9 +1,11 @@
 import React from 'react'
-import Blog from './components/Blog'
 import Loginform from './components/Loginform'
 import Blogform from './components/Blogform'
 import Users from './components/Users'
 import User from './components/User'
+import Bloglist from './components/Bloglist'
+import Blog from './components/Blog'
+import Menubar from './components/Menubar'
 import NotificationBox from './components/Notification'
 import Togglable from './components/Togglable'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
@@ -17,6 +19,7 @@ import {
 } from './reducers/blogReducer'
 import { logIn, logOut, setUser } from './reducers/userReducer'
 import { connect } from 'react-redux'
+
 
 class App extends React.Component {
   constructor(props) {
@@ -69,9 +72,6 @@ class App extends React.Component {
 
   logout = event => {
     event.preventDefault()
-    // window.localStorage.removeItem('loggedBlogAppUser')
-    // this.setState({ user: null })
-    // blogService.setToken('')
     this.props.logOut()
   }
 
@@ -108,7 +108,7 @@ class App extends React.Component {
   }
 
   userById = id => this.props.users.find(u => u.id === id)
-
+  blogById = id => this.props.blogs.find(b => b.id === id)
   componentDidMount = async () => {
     await this.props.blogsInitialization()
     await this.props.usersInitialization()
@@ -133,57 +133,51 @@ class App extends React.Component {
       </div>
     )
 
-    const allBlogs = () => (
-      <div>
-        <h2>blogs</h2>
-        <Togglable buttonlabel="Add new blog">
-          <Blogform
-            blogFieldChanged={this.blogFieldChanged}
-            title={this.state.newBlog.title}
-            author={this.state.newBlog.author}
-            url={this.state.newBlog.url}
-            postBlog={this.postBlog}
-          />
-        </Togglable>
-        {this.props.blogs
-          .sort((a, b) => b.likes - a.likes)
-          .map(blog => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              user={this.state.user}
-              deleteBlog={() => this.deleteBlogButtonPressed(blog.id)}
-              increaseLikes={() => this.likeButtonPressed(blog)}
-            />
-          ))}
-      </div>
-    )
     return (
       <Router>
         <div>
-          <div>
-            {this.props.user.name} logged in
-      <button type="submit" onClick={this.logout}>
-              logout
-      </button>
-          </div>
+          <div><h1>Blog app</h1></div>
+
           <NotificationBox />
-
-
 
           {typeof (this.props.user.token) === 'undefined' ? (
             loginform()
           ) : (
               <div>
-                <Route exact path="/" render={() => (allBlogs())} />
+                <div>
+                  <Menubar />
+                  {this.props.user.name} logged in
+                    <button type="submit" onClick={this.logout}>logout</button>
+                </div>
+                <Route exact path="/" render={() => (
+                  <div>
+                    <Togglable buttonlabel="Add new blog">
+                      <Blogform
+                        blogFieldChanged={this.blogFieldChanged}
+                        title={this.state.newBlog.title}
+                        author={this.state.newBlog.author}
+                        url={this.state.newBlog.url}
+                        postBlog={this.postBlog}
+                      />
+                    </Togglable>
+                    <Bloglist />
+                  </div>)
+                } />
                 <Route exact path="/users" render={() => (<Users />)} />
                 <Route
-                exact
-                path="/users/:id"
-                render={({ match }) => (
-                  <User user={this.userById(match.params.id)} />
-                )}
-/>
+                  exact
+                  path="/users/:id"
+                  render={({ match }) => (
+                    <User user={this.userById(match.params.id)} />
+                  )}
+                />
+                <Route
+                  exact
+                  path="/blogs/:id"
+                  render={({ match, history }) => (
+                    <Blog history={history} oneBlog={this.blogById(match.params.id)} />
+                  )}
+                />
               </div>
             )}
         </div>

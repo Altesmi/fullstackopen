@@ -14,8 +14,8 @@ class Users extends React.Component {
                             <td><b>Name</b></td><td><b>blogs</b></td>
                         </tr>
                         {this.props.users.map(user => (
-                            <tr>
-                                <td><NavLink exact to={`/users/${user.id}`}>{user.name} </NavLink></td> <td>{user.blogs.length}</td>
+                            <tr key={user.id}>
+                                <td><NavLink exact to={`/users/${user.id}`}>{user.name}</NavLink></td><td>{user.blogs.length}</td>
                             </tr>
                         ))}
                     </tbody>

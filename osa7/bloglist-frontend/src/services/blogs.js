@@ -23,12 +23,12 @@ const create = async (newObject) => {
 
 const deleteBlog = async (id) => {
   const config = {
-    headers: {'Authorization': token}
+    headers: { 'Authorization': token }
   }
 
   const delUrl = `/api/blogs/${id}`
 
-  const response = await axios.delete(delUrl,config)
+  const response = await axios.delete(delUrl, config)
 
   return response.data
 }
@@ -51,13 +51,26 @@ const increaseLike = async (blogObject) => {
   } catch (exception) {
     console.log(exception)
   }
-
-
 }
 
-export default { 
-  getAll, 
-  setToken, 
-  create, 
+const postComment = async (id, content) => {
+  const commentUrl = `/api/blogs/${id}/comments`
+
+  const data = { content }
+
+  try {
+    const response = await axios.post(commentUrl, data)
+    return response.data
+  } catch (exception) {
+    console.log(exception)
+  }
+}
+
+export default {
+  getAll,
+  setToken,
+  create,
   increaseLike,
-  deleteBlog }
+  deleteBlog,
+  postComment
+}
